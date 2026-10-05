@@ -1,0 +1,16 @@
+# Exact versions used to produce the results in the paper (Python 3.9.5,
+# CUDA 11.8 for GPU runs). Only packages actually imported by the scripts
+# in this directory are listed.
+#
+# torch was originally installed as the CUDA 11.8 build (torch==2.0.1+cu118).
+# The line below installs the plain PyPI (CPU) build instead; for a GPU
+# build matching the original environment, install it separately first, e.g.:
+#   pip install torch==2.0.1 --index-url https://download.pytorch.org/whl/cu118
+numpy==1.23.0
+pandas==2.1.0
+matplotlib==3.7.3
+seaborn==0.12.2
+tqdm==4.66.1
+torch==2.0.1
+torchani==2.2.3
+pennylane==0.32.0
