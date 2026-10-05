@@ -60,28 +60,13 @@ Run this once before anything else. `data/`, `model/`, and `results/` are
 ~106MB of datasets and checkpoints, hosted externally and fetched/extracted
 by this script instead.
 
-> **Maintainer note:** this repository will be published at
-> [`nusanyoma/Quantum-MLIP`](https://github.com/nusanyoma/Quantum-MLIP).
-> `download-assets.sh` expects `release_assets/code_code_assets-v1.tar.gz`
-> (already built, with its SHA-256 in
-> `release_assets/code_code_assets-v1.tar.gz.sha256`) to be attached as a
-> release asset on a GitHub Release tagged **`assets-v1`** on that repo.
-> To publish it:
-> 1. Push this repository to `nusanyoma/Quantum-MLIP` (`main` branch).
-> 2. On GitHub, go to **Releases → Draft a new release**, set the tag to
->    `assets-v1`, and attach `release_assets/code_code_assets-v1.tar.gz`
->    as a binary asset, then publish the release.
-> 3. `download-assets.sh` will then resolve correctly as-is. If you use a
->    different tag or filename, update `ASSETS_URL` in
->    `download-assets.sh` to match.
-
 **Fetched by `download-assets.sh`** (large; listed in `.gitignore`, not in
 git history):
 
 | Path | Contents | Why it's here |
 |---|---|---|
 | `data/ani_gdb_s0{1,2,3,4}.h5` | The 4 ANI-dataset shards (`D1`–`D4`, grouped by heavy-atom count) | Input for `01_transfer_learning/` and `02_ani_dataset_results/`'s inference scripts |
-| `model/Classic/best_Default_nnp_shuffle_l{2..5}_..._{4,8,12}qu.pt` (12 files) | Pretrained `L_pre = L_out∘L_in` checkpoints | The starting point every transfer-learning script loads before inserting `L_mid`/`Q` (see §6 — this pretraining step itself cannot be redone from this package) |
+| `model/Classic/best_Default_nnp_shuffle_l{2..5}_..._{4,8,12}qu.pt` (12 files) | Pretrained `L_pre = L_out∘L_in` checkpoints | The starting point every transfer-learning script loads before inserting `L_mid`/`Q` (this pretraining step itself cannot be redone from this package) |
 | `model/Classic_transfer/best_CC_s04_{1,2,3}layer_4qu_seed0.pt`, `model/Quantum_transfer/best_QC_s04_{1,2,3}layer_4qu_d1_seed0_all_RzRy.pt` | Already-trained transfer models for the cholesterol validation's exact configuration (`D4`, `n_q=4`, seed 0) | Lets `03_cholesterol_validation/inference_ani.py` run immediately |
 | `results/valid/{Classic_transfer,Quantum_transfer}/*.txt` (39 files) | Per-epoch validation-RMSE logs for `D1` (`l=1..4`, `n_q=4`, seed 0, both ansätze, `d∈{1,5}`) and `D1`–`D4` (`l=1`, `n_q=4`, seeds 0–4) | Lets `plot_ani_results.py` draw the learning-curve panels and the `improvement_dataset.png` baseline immediately |
 | `02_ani_dataset_results/*.pickle` | `CC_rmse_dict.pickle` / `QC_rmse_dict_{Ry,RzRy}.pickle` — aggregated test-RMSE over the full `(D, n_q, l, d, seed)` grid | Lets `plot_ani_results.py` draw the bar-chart figures immediately, without needing the full training grid re-run |
@@ -123,7 +108,7 @@ dataset. Writes to `model/Quantum_transfer/` and
 `results/{train,valid}/Quantum_transfer/`.
 
 > Both scripts load the pretrained checkpoint from `model/Classic/` — no
-> pretraining step is needed first; it's already done (see §6).
+> pretraining step is needed first; it's already done.
 
 ### Step B — Aggregate results and draw the figures (§3.4)
 
@@ -160,73 +145,5 @@ arguments (matching the `.xyz` files in `data/`):
 `grep "SCF Done" data/<file>.gjf.log | tail -1`.
 
 Then open `figure.ipynb` and run all cells to produce the `*_barplot.png`
-comparison figures in `out/` (these use independently-verified literal
-values rather than calling `inference_ani.py` live — see §6).
-
-## 5. What was changed relative to the original scripts
-
-1. **Hardcoded relative paths** replaced with `DATA_DIR`/`MODEL_DIR`/`RESULTS_DIR`
-   from `lib/ani_transfer/paths.py`, plus a small `sys.path` bootstrap added
-   to every entry-point script, so nothing here depends on a specific
-   working directory.
-2. **Bugs fixed**: an `early_stopping_learning_rate` typo in
-   `classic_transfer.py` that silently disabled early stopping;
-   `inference_ani.py`'s hardcoded example config (`n_qubits=8`, and
-   `data_No=3` for the quantum model) corrected to the configuration
-   actually used and verified for the paper's Fig. cholesterol_result
-   (`n_qubits=4`, `data_No=4` for both); `figure.ipynb`'s stale save path
-   (now `03_cholesterol_validation/out/`).
-3. **Nothing else was changed** — hyperparameter sweep ranges, model logic,
-   and everything else are exactly as found in the original scripts.
-
-## 6. Known limitations
-
-- **Pretraining (producing the checkpoints in `model/Classic/`) cannot be
-  redone from this package.** The script that originally produced them,
-  and its source dataset, no longer exist anywhere in the project this was
-  extracted from. This does not block anything above — the checkpoint
-  files themselves are supplied — but you cannot verify or vary the
-  pretraining step itself here.
-- **`classic_transfer.py` and `qc_{Ry,RzRy}_{4,8,12}qu.py` process one
-  dataset/hyperparameter combination per run**, not the full grid — the
-  original workflow swept it by editing constants and resubmitting, and
-  that pattern is preserved as-is rather than converted to CLI arguments.
-- **The cholesterol-validation sweep is not one command** —
-  `inference_ani.py` predicts one molecule with one model per invocation.
-  `figure.ipynb`'s bar-chart values are a literal, hand-typed list rather
-  than being read from `inference_ani.py`'s output live, though they were
-  independently confirmed to match what it computes (§7).
-- **`download-assets.sh` will 404 until the GitHub Release exists.** It
-  points at `nusanyoma/Quantum-MLIP`'s release tag `assets-v1`, which
-  doesn't exist yet — it needs to be created and have
-  `release_assets/code_code_assets-v1.tar.gz` attached to it first (see §3).
-
-## 7. Verification already performed
-
-- Every `.py` file here compiles (`python -m py_compile`) and the
-  `sys.path`/`paths.py` bootstrap resolves `DATA_DIR`/`MODEL_DIR`/`RESULTS_DIR`
-  to the local `data/`, `model/`, `results/` directories shown above.
-- `classic_transfer.py`'s and `qc_Ry_4qu.py`'s full pipelines (load
-  pretrained checkpoint → build model → train a couple of epochs → save
-  checkpoint → write log) were run end-to-end against the local files as a
-  smoke test.
-- `plot_ani_results.py`'s 12 outputs were compared against
-  `260707_AGC_原稿/figure/` and against numbers quoted in `main.tex`
-  (§3.4.1's 1.80/1.48 and 1.40/1.27 kcal/mol RMSE pairs; §3.4.2's
-  1.55/0.39/0.14/0.13 kcal/mol improvements) — all matched.
-- `inference_ani.py`'s corrected default configuration was run for all 3
-  model types and cross-checked against the DFT reference in
-  `data/cholesterol_optimized_.gjf.log` and against
-  `figure.ipynb`'s bar-chart values — matched to within ≈0.3 kcal/mol
-  (ordinary rounding, not a discrepancy).
-- Full-scale re-training (100 epochs × the entire hyperparameter grid, on
-  GPU) was **not** executed — the smoke test above confirms the pipeline
-  runs correctly end-to-end; reproducing every published number by
-  retraining the entire grid is a much larger, separate undertaking.
-- The full cold-start flow was tested end-to-end in a clean clone: running
-  `download-assets.sh` against the release asset, then Steps A–C exactly as
-  written above (including invoking `classic_transfer.py` and
-  `qc_Ry_4qu.py` directly, not through any helper code) — all completed
-  successfully with no manual intervention. The only part not yet
-  exercised over a real network connection is the GitHub Release itself,
-  which doesn't exist yet (see §6).
+comparison figures in `out/` (these use precomputed literal values rather
+than calling `inference_ani.py` live).
