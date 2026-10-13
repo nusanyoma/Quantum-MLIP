@@ -21,16 +21,13 @@ pip install -r requirements.txt
 ## 2. Directory structure
 
 ```
-code/code/
+Quantum-MLIP/
 ├── README.md
 ├── requirements.txt
 ├── download-assets.sh                    fetches data/, model/, results/ (§3)
 ├── .gitignore
 ├── lib/ani_transfer/                    shared library — model definitions,
-│                                         circuit ansätze, dataset loading,
-│                                         and lib/ani_transfer/paths.py
-│                                         (the DATA_DIR/MODEL_DIR/RESULTS_DIR
-│                                         used by every script below)
+│                                         circuit ansätze, dataset loading
 ├── data/                                 fetched by download-assets.sh (§3).
 ├── model/                                pretrained checkpoints, fetched by
 │                                         download-assets.sh.
@@ -41,12 +38,10 @@ code/code/
 ├── 02_ani_dataset_results/               §3.4 — evaluate + plot
 │   ├── cc_inference.py                   test-set eval (classical)
 │   ├── qc_inference_{Ry,RzRy}.py         test-set eval (quantum)
-│   ├── plot_ani_results.py               → figures in out/
-│   └── compr_circuit_s01_CNOT.ipynb      original figure notebook (reference)
+│   └── plot_ani_results.py               → figures in out/
 └── 03_cholesterol_validation/            §3.5 — practical-molecule validation
     ├── inference_ani.py                  per-molecule energy prediction
-    ├── transform_coordinates.py          Gaussian16 .gjf.log → .xyz
-    └── figure.ipynb                       → *_barplot.png in out/
+    └── transform_coordinates.py          Gaussian16 .gjf.log → .xyz
 ```
 
 ## 3. Fetch the data and model checkpoints
@@ -143,7 +138,3 @@ arguments (matching the `.xyz` files in `data/`):
 `cholesterol_optimized_`, `cholestanol_optimized`, `epicholesterol_optimized`,
 `7-dehydrocholesterol_optimized`. To compare against the DFT reference,
 `grep "SCF Done" data/<file>.gjf.log | tail -1`.
-
-Then open `figure.ipynb` and run all cells to produce the `*_barplot.png`
-comparison figures in `out/` (these use precomputed literal values rather
-than calling `inference_ani.py` live).

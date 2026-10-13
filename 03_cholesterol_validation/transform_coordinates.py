@@ -5,7 +5,7 @@ import pathlib
 
 _here = pathlib.Path(__file__).resolve()
 for _p in _here.parents:
-    for _cand in (_p / "lib", _p / "code" / "code" / "lib"):
+    for _cand in (_p / "lib",):
         if (_cand / "ani_transfer").is_dir():
             sys.path.insert(0, str(_cand))
             break
@@ -19,7 +19,7 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("file", help="basename (without extension) of the *.gjf.log file")
     parser.add_argument("--data-dir", default=str(DATA_DIR),
-                         help="directory containing <file>.gjf.log (default: QNNP/data)")
+                         help="directory containing <file>.gjf.log (default: data/)")
     args = parser.parse_args()
     file = args.file
     data_dir = pathlib.Path(args.data_dir)

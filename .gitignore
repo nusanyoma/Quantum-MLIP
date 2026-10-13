@@ -1,7 +1,5 @@
 # Bulk ANI datasets (93MB) — fetched by ./download-assets.sh, not tracked
-# in git. Small essential inputs (the cholesterol-family .xyz / .gjf.log
-# files) are intentionally NOT listed here and stay tracked, the same way
-# TorchANI tracks its small test .pdb files but ignores *.h5/*.hdf5.
+# in git. The small cholesterol-family .xyz / .gjf.log files stay tracked.
 /data/*.h5
 /data/*.hdf5
 
@@ -17,7 +15,6 @@
 
 # Generated figures
 /02_ani_dataset_results/out/
-/03_cholesterol_validation/out/
 
 # PBS job scripts tied to the specific HPC cluster these were run on
 # (queue names, module versions, a venv path local to that machine) —

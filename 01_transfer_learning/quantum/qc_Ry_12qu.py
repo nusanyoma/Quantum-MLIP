@@ -15,7 +15,7 @@ import sys
 import pathlib as _pathlib
 _here = _pathlib.Path(__file__).resolve()
 for _p in _here.parents:
-    for _cand in (_p / "lib", _p / "code" / "code" / "lib"):
+    for _cand in (_p / "lib",):
         if (_cand / "ani_transfer").is_dir():
             sys.path.insert(0, str(_cand))
             break

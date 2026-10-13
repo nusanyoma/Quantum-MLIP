@@ -1,16 +1,7 @@
 #!/bin/bash
 # Downloads the pretrained checkpoints, ANI datasets, and pre-computed
-# result caches needed to run code/code/ (see README.md, "Prerequisites").
-# These are not tracked in git (see .gitignore) because of their size;
-# instead they're hosted as a GitHub Release asset and fetched by this
-# script, following the same pattern as e.g. TorchANI's
-# download-dev-data.sh (which fetches from Hugging Face Hub instead).
-#
-# TODO (before this URL will work): create a GitHub Release tagged
-# "assets-v1" on https://github.com/nusanyoma/Quantum-MLIP and attach
-# release_assets/code_code_assets-v1.tar.gz to it as a release asset (see
-# README.md, "Maintainer note"). If you use a different tag name, update
-# ASSETS_URL below to match.
+# result caches (data/, model/, results/) from the GitHub Release "assets-v1"
+# of this repository. See README.md, section 3.
 set -euo pipefail
 
 ASSETS_URL="https://github.com/nusanyoma/Quantum-MLIP/releases/download/assets-v1/code_code_assets-v1.tar.gz"
